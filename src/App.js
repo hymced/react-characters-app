@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { Routes, Route, Link, NavLink, Navigate } from "react-router-dom";
 
+import CharacterDetails from "./components/CharacterDetails";
+
 function App() {
   // const [characters, setCharacters] = useState([]); // if not initialized with empty array (e.g. undefined), the map method will be called on a variable that is not an array --> error
   const [characters, setCharacters] = useState(null); // with conditional rendering
@@ -32,8 +34,59 @@ function App() {
   }, [characters])
 
   const renderCharacters = () => {
+    return (
+      <>
+        {
+          characters === null 
+          ? <p>"Loading..."</p>
+          : <>
 
+            <h2>Number of characters in the API: {characters.length}</h2>
+            
+            <h2>First 10 characters in API: </h2>
+            {characters.slice(0,1000).map((character, index) => {
+              // return <div key={index} className="character">
+              //   Name: {character.name} | 
+              //   Weapon: {character.weapon} |     
+              //   <button onClick={() => {deleteCharacter(character.id)}}> Delete </button>
+              // </div>
+              // JSX collapses whitespaces (before the inline button in this case)
+              // https://stackoverflow.com/questions/36377373/how-to-use-whitespace-pre-wrap-on-react/36377593#36377593
+              // return <div key={index} className="character" style={{whiteSpace: "pre-wrap"}}>
+              // {`
+              //   Name: ${character.name} | 
+              //   Weapon: ${character.weapon} | 
+              // `}
+              return <div key={index} className="character box" style={{whiteSpace: "pre"}}>
+                {`Name: ${character.name} | Weapon: ${character.weapon} | `}
+                <button onClick={() => {deleteCharacter(character.id)}}> Delete </button>
+                <br />
+                <Link to={`/characters/${character.id}`}>More Details</Link>
+              </div>
+            })}
+          
+          </>
+        }
+      </>
+
+    )
   }
+
+  // const renderCharacters = () => {
+  //   if(characters === null){
+  //     return <p>Loading...</p>;
+  //   } else {
+  //     return characters.map((character) => {
+  //       return (
+  //         <div key={character.id} className="character box">
+  //           Name: {character.name} <br />
+  //           Weapon: {character.weapon} <br />
+  //           <Link to={`/characters/${character.id}`}>More details</Link>
+  //         </div>
+  //       )
+  //     })
+  //   }
+  // }
 
   return (
     <div className="App">
@@ -54,41 +107,12 @@ function App() {
         <NavLink to="/contact">Contact</NavLink>
       </nav>
       <Routes>
-        <Route path='/' element={renderCharacters} />
+        <Route path='/' element={renderCharacters()} />
         <Route path='/about' element={<p>This is the about page</p>} />
         <Route path='/contact' element={<p>This is the contact page</p>} />
+        <Route path='/characters/:characterId' element={<CharacterDetails />} />
       </Routes>
       {/* Navigate component to redirect */}
-
-      {
-        characters === null 
-        ? "Loading..."
-        : <>
-
-          <h2>Number of characters in the API: {characters.length}</h2>
-          
-          <h2>First 10 characters in API: </h2>
-          {characters.slice(0,1000).map((character, index) => {
-            // return <div key={index} className="character">
-            //   Name: {character.name} | 
-            //   Weapon: {character.weapon} |     
-            //   <button onClick={() => {deleteCharacter(character.id)}}> Delete </button>
-            // </div>
-            // JSX collapses whitespaces (before the inline button in this case)
-            // https://stackoverflow.com/questions/36377373/how-to-use-whitespace-pre-wrap-on-react/36377593#36377593
-            // return <div key={index} className="character" style={{whiteSpace: "pre-wrap"}}>
-            // {`
-            //   Name: ${character.name} | 
-            //   Weapon: ${character.weapon} | 
-            // `}
-            return <div key={index} className="character box" style={{whiteSpace: "pre"}}>
-              {`Name: ${character.name} | Weapon: ${character.weapon} | `}
-              <button onClick={() => {deleteCharacter(character.id)}}> Delete </button>
-            </div>
-          })}
-        
-        </>
-      }
       
     </div>
   );

@@ -27,6 +27,12 @@ function CharacterDetails({callbackDeleteCharacter, callbackGetCharacters}){
     // WARNING: React Hook useEffect has a missing dependency: 'characterId'. 
     // Either include it or remove the dependency array.
     // eslint(react-hooks/exhaustive-deps)
+    // this warning happens if the react-hooks/exhaustive-deps rule inside the ESLint configuration file is activated
+    // the react-hooks/exhaustive-deps rule verifies that every object declared outside a useEffect callback AND used by it is part of the dependency array
+    // Fix #1 - Add the missing dependency
+    // Fix #2 - Move the dependency inside the useEffect (cannot move a hook into a hook, so it is not possible to have a useState inside a useEffect hook; with non-hooks, however, this solution works great)
+    // Fix #3 - Disable the ESLint rule // eslint-disable-next-line react-hooks/exhaustive-deps
+    // No Fix - Leave it if the logic is ok
     }, [])
 
     return (

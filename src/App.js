@@ -50,7 +50,8 @@ function App() {
     axios
       .get(`${process.env.REACT_APP_API_URL}/characters`)
       .then(response => {
-        setCharacters(response.data);
+        // setCharacters(response.data);
+        setCharacters(prevCharacters => response.data);
       })
       .catch(e => console.log("error getting: ", e));
   }

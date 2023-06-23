@@ -3,35 +3,57 @@ import './App.css';
 
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { Routes, Route, Link, NavLink, Navigate } from "react-router-dom";
+import { Routes, Route, Link, NavLink, Navigate, useNavigate } from "react-router-dom";
 
 import CharacterDetails from "./components/CharacterDetails";
+import AboutPage from './pages/AboutPage';
 
 function App() {
+  console.log("component App rendering...") // the first time it is rendering, it is mounting
+
   // const [characters, setCharacters] = useState([]); // if not initialized with empty array (e.g. undefined), the map method will be called on a variable that is not an array --> error
   const [characters, setCharacters] = useState(null); // with conditional rendering
-  const url = "https://ih-crud-api.herokuapp.com/characters"
+  
+  const navigate = useNavigate();
+
+  // const url = "https://ih-crud-api.herokuapp.com/characters"
+  // REMEMBER TO RESTART THE PROCESS WHEN CHANGING ENV VARIABLES!
 
   const deleteCharacter = (characterId) => {
-    axios
-      .delete(`${url}/${characterId}`)
+    // axios.delete(`${url}/${characterId}`)
+    return axios
+      .delete(`${process.env.REACT_APP_API_URL}/characters/${characterId}`)
       .then(response => {
-        console.log(response);
-        // setCharacters(characters);
+        // console.log("deleted: ", response);
+        return response; // pass the promise back
       })
-      .catch(e => console.log("ERROR: ", e))
+      .catch(e => console.log("error deleting: ", e))
   }
 
-  useEffect(() => {
-    axios
-      .get(url)
-      .then(response => {
-        // console.log(response)
-        setCharacters(response.data)
-      })
-      .catch()
+  // useEffect(() => {
+  //   // axios.get(url)
+  //   axios
+  //     .get(`${process.env.REACT_APP_API_URL}/characters`)
+  //     .then(response => {
+  //       setCharacters(response.data)
+  //     })
+  //     .catch(e => console.log("error getting: ", e));
   // }, []) // deletes but does not render again
-  }, [characters])
+  // // }, [characters]) // infinite loop!
+  // // }) // infinite loop!
+
+  useEffect(() => {
+    getCharacters()
+  }, [])
+
+  const getCharacters = () => {
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/characters`)
+      .then(response => {
+        setCharacters(response.data);
+      })
+      .catch(e => console.log("error getting: ", e));
+  }
 
   const renderCharacters = () => {
     return (
@@ -59,7 +81,14 @@ function App() {
               // `}
               return <div key={index} className="character box" style={{whiteSpace: "pre"}}>
                 {`Name: ${character.name} | Weapon: ${character.weapon} | `}
-                <button onClick={() => {deleteCharacter(character.id)}}> Delete </button>
+                <button onClick={() => {
+                  deleteCharacter(character.id)
+                    .then(response => {
+                      // console.log("deleted (ter): ", response);
+                      getCharacters()
+                    })
+                    .catch(e => console.log("error deleting (ter): ", e))
+                }}> Delete </button>
                 <br />
                 <Link to={`/characters/${character.id}`}>More Details</Link>
               </div>
@@ -107,10 +136,11 @@ function App() {
         <NavLink to="/contact">Contact</NavLink>
       </nav>
       <Routes>
+         {/* <Route path='/' element={<p>Homepage</p>} /> */}
         <Route path='/' element={renderCharacters()} />
-        <Route path='/about' element={<p>This is the about page</p>} />
-        <Route path='/contact' element={<p>This is the contact page</p>} />
-        <Route path='/characters/:characterId' element={<CharacterDetails />} />
+        <Route path='/about' element={<AboutPage />} />
+        <Route path='/contact' element={<p>Contact page</p>} />
+        <Route path='/characters/:characterId' element={<CharacterDetails callbackDeleteCharacter={deleteCharacter} callbackGetCharacters={getCharacters} />} />
       </Routes>
       {/* Navigate component to redirect */}
       
